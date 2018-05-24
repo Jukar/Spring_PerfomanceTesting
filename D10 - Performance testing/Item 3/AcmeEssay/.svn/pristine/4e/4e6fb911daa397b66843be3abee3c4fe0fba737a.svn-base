@@ -1,0 +1,49 @@
+package controllers.organiser;
+
+import java.util.Collection;
+import java.util.Date;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import services.EssayService;
+
+import controllers.AbstractController;
+import domain.Essay;
+
+@Controller
+@RequestMapping("essay/organiser")
+public class EssayOrganiserController extends AbstractController{
+	
+	// ----------------------- Managed service -----------------------
+	@Autowired
+	private EssayService essayService;
+	
+	// ------------------------- Constructor -------------------------
+	
+	// -------------------------   UseCases  -------------------------
+	
+	@RequestMapping(value= "/publish", method = RequestMethod.GET)
+	public ModelAndView details(@RequestParam int essayId){
+		ModelAndView result;
+		
+		try{
+			essayService.publish(essayId);
+			result= new ModelAndView("redirect:list.do");
+		}catch(Throwable oops){
+			result= new ModelAndView("redirect:list.do");
+			result.addObject("message", "lodge.commit.error");
+		}
+		return result;
+	}
+	
+	// ---------------------- Ancillary methods ----------------------
+}

@@ -1,0 +1,101 @@
+package services;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.RollbackException;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import domain.Contest;
+import security.LoginService;
+import security.UserAccount;
+import utilities.AbstractTest;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={
+		"classpath:spring/datasource.xml",
+		"classpath:spring/config/packages.xml"})
+@SuppressWarnings("unused")
+@Transactional
+@TransactionConfiguration(defaultRollback = true)
+public class ContestServiceTest extends AbstractTest{
+	
+	// ------------------- Supporting services -------------------
+	
+	@Autowired
+	private ContestService contestService;
+	
+	//----------------------------------------------------
+	// POSITIVE TEST CASES
+	//----------------------------------------------------
+	
+	//A user who is not authenticated must be able to:
+	//List all the contests.
+	@Test
+	public void testListAll(){
+		Collection<Contest> all=contestService.findAll();
+		Assert.isTrue(all.size()==3);
+	}
+	
+	//A user who is authenticated as Author must be able to:
+	//List all the contests.
+	@Test
+	public void testListAuthor(){
+		authenticate("author1");
+		Collection<Contest> all=contestService.findAll();
+		Assert.isTrue(all.size()==3);
+		unauthenticate();
+	}
+	
+	//A user who is authenticated as Organiser must be able to:
+	//List all the contests.
+	@Test
+	public void testListOrganiser(){
+		authenticate("organiser1");
+		Collection<Contest> all=contestService.findAll();
+		Assert.isTrue(all.size()==3);
+		unauthenticate();
+	}
+		
+	//A user who is authenticated as Administrator must be able to:
+	//List all the contests.
+	@Test
+	public void testListAdministrator(){
+		authenticate("admin1");
+		Collection<Contest> all=contestService.findAll();
+		Assert.isTrue(all.size()==3);
+		unauthenticate();
+	}
+	
+	
+	//TODO Desde aqui julio
+	//A user who is authenticated as an Organiser must be able to:
+	//Create
+	//With an existing Organiser we will try to create a contest
+	@Test
+	public void testCreateAndSave(){
+		authenticate("organiser1");
+		
+		Contest contest = contestService.create();
+		
+		contest.setName("testing");
+		contest.setDescription("testing");
+		contest.setHoldingDate(new Date());
+		contest.setDeadline(new Date());
+		contest.setResult("testing");
+
+		contestService.save(contest);
+		
+		unauthenticate();
+	}
+}

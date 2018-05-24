@@ -1,0 +1,64 @@
+package services;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import repositories.OrganiserRepository;
+import security.Authority;
+import security.UserAccount;
+import domain.Contest;
+import domain.Organiser;
+
+@Transactional
+@Service
+public class OrganiserService {
+	// Managed repository -----------------------------------------	
+	@Autowired
+	private OrganiserRepository organiserRepository;
+	// Supporting services ----------------------------------------
+	// Constructor ------------------------------------------------
+	// Simple CRUD methods ----------------------------------------
+	public Organiser create(){
+		Organiser result=new Organiser();
+		
+		UserAccount userAccount=new UserAccount();
+		List<Authority> authorities=new ArrayList<Authority>();
+		Authority a=new Authority();
+		a.setAuthority(Authority.ORGANISER);
+		authorities.add(a);
+		userAccount.setAuthorities(authorities);
+		
+		Collection<Contest> contests=new ArrayList<Contest>();
+		
+		result.setUserAccount(userAccount);
+		result.setContests(contests);
+		
+		return result;
+	}
+	public Organiser findOne(int organiserId){
+		Organiser result;
+		result=organiserRepository.findOne(organiserId);
+		return result;
+	}
+	public Collection<Organiser> findAll(){
+		Collection<Organiser> result;
+		result=organiserRepository.findAll();
+		return result;
+	}
+	public void save(Organiser organiser){
+		Assert.notNull(organiser);
+		organiserRepository.save(organiser);
+	}
+	public void delete(Organiser organiser){
+		Assert.notNull(organiser);
+		organiserRepository.delete(organiser);
+	}
+	// Other business methods -------------------------------------
+}

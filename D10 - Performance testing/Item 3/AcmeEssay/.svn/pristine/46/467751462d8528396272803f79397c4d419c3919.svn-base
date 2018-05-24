@@ -1,0 +1,36 @@
+package controllers.organiser;
+
+import java.util.Collection;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import services.ContestService;
+
+import controllers.AbstractController;
+import domain.Contest;
+@Controller
+@RequestMapping("/contest/organiser")
+public class ContestOrganiserController extends AbstractController {
+	//Services --------------------------------------------------
+	@Autowired
+	private ContestService contestService;
+	
+	//Listing------------------------
+	@RequestMapping("/list")
+	public ModelAndView listAll() {
+		ModelAndView result;
+		
+		Collection<Contest> contests;
+		
+		contests=contestService.findByOrganiser();
+		String requestURI="contest/organiser/list.do";
+			
+		result = new ModelAndView("contest/organiser/list");
+		result.addObject("contests",contests);
+		result.addObject("requestURI",requestURI);
+		return result;
+	}
+}

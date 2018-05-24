@@ -1,0 +1,69 @@
+package services;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import repositories.ContestRepository;
+import security.LoginService;
+import security.UserAccount;
+import domain.Contest;
+import domain.Essay;
+import domain.Organiser;
+
+@Transactional
+@Service
+public class ContestService {
+	// Managed repository -----------------------------------------	
+	@Autowired
+	private ContestRepository contestRepository;
+	// Supporting services ----------------------------------------
+	@Autowired
+	private OrganiserService organiserService;
+	// Constructor ------------------------------------------------
+	// Simple CRUD methods ----------------------------------------
+	public Contest create(){
+		Contest result=new Contest();
+		UserAccount userAccount=LoginService.getPrincipal();
+		Organiser organiser=organiserService.findByUserAccount(userAccount);
+		Collection<Essay> essays=new ArrayList<Essay>();
+		result.setEssays(essays);
+		result.setContestOrganiser(organiser);
+		return result;
+	}
+	public Contest findOne(int contestId){
+		Contest result;
+		result=contestRepository.findOne(contestId);
+		return result;
+	}
+	public Collection<Contest> findAll(){
+		Collection<Contest> result;
+		result=contestRepository.findAll();
+		return result;
+	}
+	public void save(Contest contest){
+		Assert.notNull(contest);
+		contestRepository.save(contest);
+	}
+	public void delete(Contest contest){
+		Assert.notNull(contest);
+		Assert.isTrue(contest.getEssays().size()==0);
+		contestRepository.delete(contest);
+	}
+	// Other business methods -------------------------------------
+	public Collection<Contest> findByOrganiserId(int organiserId){
+		Collection<Contest> result;
+		result=contestRepository.findByOrganiser(organiserId);
+		return result;
+	}
+	public Collection<Contest> findByOrganiser() {
+		UserAccount user=LoginService.getPrincipal();
+		Organiser currentActor=organiserService.findByUserAccount(user);
+		Collection<Contest> result=findByOrganiserId(currentActor.getId());
+		return result;
+	}
+}
